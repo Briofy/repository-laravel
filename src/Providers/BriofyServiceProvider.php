@@ -1,6 +1,6 @@
 <?php
 
-namespace Briofy\RestLaravel\Providers;
+namespace Briofy\RepositoryLaravel\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
