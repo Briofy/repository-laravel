@@ -1,0 +1,27 @@
+{
+    "name": "briofy/repository-laravel",
+    "description": "The Repository Design Pattern Package for Laravel",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Briofy\\RepositoryLaravel\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Mam Mad",
+            "email": "mmd@briofy.net"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Briofy\\RepositoryLaravel\\Providers\\BriofyServiceProvider"
+            ]
+        }
+    },
+    "require-dev": {
+        "laravel/pint": "^1.9"
+    }
+}
