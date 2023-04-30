@@ -132,6 +132,12 @@ abstract class AbstractRepository implements RepositoryInterface
         return $this;
     }
 
+    public function onlyFirstLevel(?String $column = 'parent_id'): self
+    {
+        $this->model = $this->model->whereNull($column);
+        return $this;
+    }
+
     public function transactional(callable $callable)
     {
         try {
