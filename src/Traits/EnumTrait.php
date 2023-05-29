@@ -45,4 +45,3 @@ trait EnumTrait
         return array_flip(self::toSelectArrayWithKeys());
     }
 }
-

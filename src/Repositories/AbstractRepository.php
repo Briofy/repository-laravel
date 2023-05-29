@@ -14,8 +14,20 @@ abstract class AbstractRepository implements RepositoryInterface
     public function __construct()
     {
         $this->setInstance();
+    }
 
+    public function __call($method, $arguments)
+    {
+        return call_user_func_array([$this->model, $method], $arguments);
+    }
 
+    abstract protected function instance(array $attributes = []): Model;
+
+    protected function setInstance(array $attributes = []): Model
+    {
+        $this->model = $this->instance($attributes);
+
+        return $this->model;
     }
 
     public function find($id, array $columns = ['*']): ?Model
@@ -59,8 +71,8 @@ abstract class AbstractRepository implements RepositoryInterface
 
                 return $query;
             })
-            ->when($limit, fn($query, $limit) => $query->limit($limit))
-            ->when($offset, fn($query, $offset) => $query->offset($offset))
+            ->when($limit, fn ($query, $limit) => $query->limit($limit))
+            ->when($offset, fn ($query, $offset) => $query->offset($offset))
             ->get($columns);
     }
 
@@ -81,7 +93,7 @@ abstract class AbstractRepository implements RepositoryInterface
 
     public function persist(array $attributes): Model
     {
-        return tap($this->instance($attributes), fn(Model $instance) => $instance->save());
+        return tap($this->instance($attributes), fn (Model $instance) => $instance->save());
     }
 
     public function update($id, array $attributes): Model
@@ -132,9 +144,10 @@ abstract class AbstractRepository implements RepositoryInterface
         return $this;
     }
 
-    public function onlyFirstLevel(?String $column = 'parent_id'): self
+    public function onlyFirstLevel(?string $column = 'parent_id'): self
     {
         $this->model = $this->model->whereNull($column);
+
         return $this;
     }
 
@@ -148,20 +161,14 @@ abstract class AbstractRepository implements RepositoryInterface
             DB::commit();
 
             return $result;
-        } catch (Exception | Throwable $e) {
+        } catch (\Exception|\Throwable $e) {
             DB::rollBack();
 
             throw $e;
         }
     }
 
-    public function __call($method, $arguments)
-    {
-        return call_user_func_array([$this->model, $method], $arguments);
-    }
-
     /**
-     *
      * @throws ModelNotFoundException
      */
     public function findWithRelation(
@@ -172,20 +179,11 @@ abstract class AbstractRepository implements RepositoryInterface
     ): ?Model {
         $builder = $this->model->with($with);
 
-        return !$trowFailException ? $builder->find($id, $columns) : $builder->findOrFail($id, $columns);
-    }
-
-    protected function setInstance(array $attributes = []): Model
-    {
-        $this->model = $this->instance($attributes);
-
-        return $this->model;
+        return ! $trowFailException ? $builder->find($id, $columns) : $builder->findOrFail($id, $columns);
     }
 
     public function findByWithRelation(array $criteria, array $with, array $columns = ['*']): ?Collection
     {
         return $this->model->with($with)->where($criteria)->get($columns);
     }
-
-    abstract protected function instance(array $attributes = []): Model;
 }
