@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 interface RepositoryInterface
 {
     public const NO_LOCK = 0;
+
     public const LOCK_FOR_SELECT = 1;
+
     public const LOCK_FOR_UPDATE = 2;
 
     public function find($id, array $columns = ['*']): ?Model;
@@ -46,7 +48,7 @@ interface RepositoryInterface
 
     public function orderBy($column, $direction = 'asc'): self;
 
-    public function onlyFirstLevel(?String $column = 'parent_id'): self;
+    public function onlyFirstLevel(?string $column = 'parent_id'): self;
 
     public function transactional(callable $callable);
 
