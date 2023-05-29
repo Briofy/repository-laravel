@@ -14,8 +14,20 @@ abstract class AbstractRepository implements RepositoryInterface
     public function __construct()
     {
         $this->setInstance();
+    }
 
+    public function __call($method, $arguments)
+    {
+        return call_user_func_array([$this->model, $method], $arguments);
+    }
 
+    abstract protected function instance(array $attributes = []): Model;
+
+    protected function setInstance(array $attributes = []): Model
+    {
+        $this->model = $this->instance($attributes);
+
+        return $this->model;
     }
 
     public function find($id, array $columns = ['*']): ?Model
@@ -135,6 +147,7 @@ abstract class AbstractRepository implements RepositoryInterface
     public function onlyFirstLevel(?String $column = 'parent_id'): self
     {
         $this->model = $this->model->whereNull($column);
+
         return $this;
     }
 
@@ -148,16 +161,11 @@ abstract class AbstractRepository implements RepositoryInterface
             DB::commit();
 
             return $result;
-        } catch (Exception | Throwable $e) {
+        } catch (\Exception | \Throwable $e) {
             DB::rollBack();
 
             throw $e;
         }
-    }
-
-    public function __call($method, $arguments)
-    {
-        return call_user_func_array([$this->model, $method], $arguments);
     }
 
     /**
@@ -175,17 +183,8 @@ abstract class AbstractRepository implements RepositoryInterface
         return !$trowFailException ? $builder->find($id, $columns) : $builder->findOrFail($id, $columns);
     }
 
-    protected function setInstance(array $attributes = []): Model
-    {
-        $this->model = $this->instance($attributes);
-
-        return $this->model;
-    }
-
     public function findByWithRelation(array $criteria, array $with, array $columns = ['*']): ?Collection
     {
         return $this->model->with($with)->where($criteria)->get($columns);
     }
-
-    abstract protected function instance(array $attributes = []): Model;
 }
